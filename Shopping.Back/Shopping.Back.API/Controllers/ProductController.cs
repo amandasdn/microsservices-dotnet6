@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Shopping.API.Data.ValueObjects;
 using Shopping.API.Interfaces.Repository;
-using Shopping.API.Model;
+using Shopping.Back.API.Model;
+using Shopping.Back.API.Utility;
 
 namespace Shopping.Back.API.Controllers
 {
@@ -9,22 +10,36 @@ namespace Shopping.Back.API.Controllers
     [Route("api/v1.0/[controller]")]
     public class ProductController : Controller
     {
+        private readonly ILogger<ProductController> _logger;
         private readonly IProductRepository _productRepository;
 
-        public ProductController(IProductRepository productRepository)
+        public ProductController(IProductRepository productRepository, ILogger<ProductController> logger)
         {
+            _logger = logger;
             _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
         }
 
         [HttpGet]
+        [ProducesResponseType(typeof(Result<IEnumerable<ProductVO>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Result), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Get()
         {
-            var products = await _productRepository.ListAll();
+            try
+            {
+                var products = await _productRepository.ListAll();
 
-            return Ok(products);
+                return this.SetOk(products);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(Result<ProductVO>), StatusCodes.Status200OK)]
         public async Task<IActionResult> Get(int id)
         {
             var product = await _productRepository.FindById(id);
@@ -34,18 +49,21 @@ namespace Shopping.Back.API.Controllers
             return BadRequest();
         }
 
-        [HttpPost("teste")]
-        public IActionResult Post(ProductVO product)
-        {
-            return CreatedAtAction(nameof(Get), new { id = 3 }, product);
-        }
+        // [HttpPost("teste")]
+        // public IActionResult Post(ProductVO product)
+        // {
+        //     return CreatedAtAction(nameof(Get), new { id = 3 }, product);
+        // }
 
         [HttpPost]
+        [ProducesResponseType(typeof(Result<ProductVO>), StatusCodes.Status200OK)]
         public async Task<IActionResult> Create(ProductVO product)
         {
-            // var products = await _productRepository.Create(product);
+            var productCreated = await _productRepository.Create(product);
 
-            return Ok(product);
+            if(productCreated != null) return Ok(productCreated);
+
+            return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
         [HttpDelete]

@@ -31,13 +31,13 @@ namespace Shopping.API.Data.ValueObjects
                 .NotNull()
                     .WithMessage($"The {nameof(ProductVO.Price)} field is required.")
                 .GreaterThan(0)
-                    .WithMessage($"The {nameof(ProductVO.Price)} field must greater than 0.00 and less then 1,000,000.00.")
+                    .WithMessage($"The {nameof(ProductVO.Price)} field must greater than 0.00 and less than 1,000,000.00.")
                 .ScalePrecision(2, 7)
-                    .WithMessage($"The {nameof(ProductVO.Price)} field must greater than 0.00 and less then 1,000,000.00.");
+                    .WithMessage($"The {nameof(ProductVO.Price)} field must greater than 0.00 and less than 1,000,000.00.");
             
             RuleFor(x => x.Description)
                 .MaximumLength(1000)
-                    .WithMessage($"The {nameof(ProductVO.Description)} field must less then 1000 caracters.");
+                    .WithMessage($"The {nameof(ProductVO.Description)} field must less than 1000 caracters.");
         }
     }
 }
