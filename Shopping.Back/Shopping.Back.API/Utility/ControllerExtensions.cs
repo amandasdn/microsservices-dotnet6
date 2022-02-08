@@ -9,7 +9,7 @@ namespace Shopping.Back.API.Utility
         private const string MessageErrorDefault = "An unexpected error has occurred.";
 
         /// <summary>
-        /// Returns 200 Status Code
+        /// Returns OK (Status Code: 200)
         /// </summary>
         public static IActionResult SetOk(this ControllerBase controllerBase, string message = null)
         {
@@ -21,7 +21,7 @@ namespace Shopping.Back.API.Utility
         }
 
         /// <summary>
-        /// Returns 200 Status Code with a Content (T)
+        /// Returns OK (Status Code: 200) - With a Content (T)
         /// </summary>
         public static IActionResult SetOk<T>(this ControllerBase controllerBase, T content, string message = null)
         {
@@ -32,11 +32,10 @@ namespace Shopping.Back.API.Utility
             return controllerBase.StatusCode(StatusCodes.Status200OK, result);
         }
 
-
         /// <summary>
-        /// Returns 500 Status Code
+        /// Returns Internal Server Error (Status Code: 500)
         /// </summary>
-        public static IActionResult SetInternal(this ControllerBase controllerBase, string message = null)
+        public static IActionResult SetInternalServerError(this ControllerBase controllerBase, string message = null)
         {
             var result = new Result();
 

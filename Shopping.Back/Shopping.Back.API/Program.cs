@@ -1,10 +1,10 @@
 using AutoMapper;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
-using Shopping.API.Data.ValueObjects;
 using Shopping.API.Interfaces.Repository;
 using Shopping.API.Model.Context;
 using Shopping.Back.API.Config;
+using Shopping.Back.API.Filters;
 using Shopping.Back.API.Repository;
 using System.Reflection;
 
@@ -22,12 +22,17 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 // Dependencies
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
+// Fluent Validation
+builder.Services
+    .AddMvc(options => options.Filters.Add(typeof(ModelStateValidatorFilter)))
+    .AddFluentValidation(config => config.RegisterValidatorsFromAssembly(Assembly.GetExecutingAssembly()));
+
 // Others
-builder.Services.AddControllers()
-    .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore)
-    .AddFluentValidation(config => config.RegisterValidatorsFromAssembly(Assembly.GetExecutingAssembly()))
-    ;
-;
+builder.Services
+    .AddControllers()
+    .ConfigureApiBehaviorOptions(options => { options.SuppressModelStateInvalidFilter = true; })
+    .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+    
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

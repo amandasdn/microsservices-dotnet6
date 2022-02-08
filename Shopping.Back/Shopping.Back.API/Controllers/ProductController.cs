@@ -57,13 +57,13 @@ namespace Shopping.Back.API.Controllers
 
         [HttpPost]
         [ProducesResponseType(typeof(Result<ProductVO>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> Create(ProductVO product)
+        public async Task<IActionResult> Create([FromBody] ProductVO product)
         {
             var productCreated = await _productRepository.Create(product);
 
-            if(productCreated != null) return Ok(productCreated);
+            if (productCreated != null) return Ok(productCreated);
 
-            return StatusCode(StatusCodes.Status500InternalServerError);
+            return this.SetOk();
         }
 
         [HttpDelete]
