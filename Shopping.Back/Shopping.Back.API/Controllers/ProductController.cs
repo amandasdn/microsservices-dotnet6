@@ -19,6 +19,9 @@ namespace Shopping.Back.API.Controllers
             _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
         }
 
+        /// <summary>
+        /// Get all the products.
+        /// </summary>
         [HttpGet]
         [ProducesResponseType(typeof(Result<IEnumerable<ProductVO>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Result), StatusCodes.Status500InternalServerError)]
@@ -34,44 +37,110 @@ namespace Shopping.Back.API.Controllers
             {
                 _logger.LogError(ex, ex.Message);
 
-                return StatusCode(StatusCodes.Status500InternalServerError);
+                return this.SetInternalServerError(ex.Message);
             }
         }
 
+        /// <summary>
+        /// Get the product by ID.
+        /// </summary>
+        /// <param name="id">Product ID</param>
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(Result<ProductVO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Result), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Result), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Get(int id)
         {
-            var product = await _productRepository.FindById(id);
+            try
+            {
+                var product = await _productRepository.FindById(id);
 
-            if (product != null) return Ok(product);
+                if (product != null) return this.SetOk(product);
 
-            return BadRequest();
+                return this.SetNotFound("The product wasn't found.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+
+                return this.SetInternalServerError(ex.Message);
+            }
         }
 
-        // [HttpPost("teste")]
-        // public IActionResult Post(ProductVO product)
-        // {
-        //     return CreatedAtAction(nameof(Get), new { id = 3 }, product);
-        // }
-
+        /// <summary>
+        /// Create a product.
+        /// </summary>
+        /// <param name="product">Product data</param>
         [HttpPost]
         [ProducesResponseType(typeof(Result<ProductVO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Result), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Create([FromBody] ProductVO product)
         {
-            var productCreated = await _productRepository.Create(product);
+            try
+            {
+                var productCreated = await _productRepository.Create(product);
 
-            if (productCreated != null) return Ok(productCreated);
+                if (productCreated != null) return this.SetOk(productCreated);
 
-            return this.SetOk();
+                return this.SetInternalServerError();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+
+                return this.SetInternalServerError(ex.Message);
+            }
         }
 
-        [HttpDelete]
-        public async Task<IActionResult> Delete()
+        /// <summary>
+        /// Update a product.
+        /// </summary>
+        /// <param name="product">Product data</param>
+        [HttpPut]
+        [ProducesResponseType(typeof(Result<ProductVO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Result), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> Update([FromBody] ProductVO product)
         {
-            // var products = await _productRepository.Create(product);
+            try
+            {
+                var productUpdated = await _productRepository.Update(product);
 
-            return Ok();
+                if (productUpdated != null) return this.SetOk(productUpdated);
+
+                return this.SetNotFound("The product wasn't found.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+
+                return this.SetInternalServerError(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Delete a product.
+        /// </summary>
+        /// <param name="id">Product ID</param>
+        [HttpDelete]
+        [ProducesResponseType(typeof(Result), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Result), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Result), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                var isDeleted = await _productRepository.Delete(id);
+
+                if (isDeleted) return this.SetOk();
+
+                return this.SetInternalServerError();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+
+                return this.SetInternalServerError(ex.Message);
+            }
         }
     }
 }

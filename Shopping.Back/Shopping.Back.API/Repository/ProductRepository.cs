@@ -45,13 +45,19 @@ namespace Shopping.Back.API.Repository
 
         public async Task<ProductVO> Update(ProductVO vo)
         {
-            Product product = _mapper.Map<Product>(vo);
+            Product product = await _context.Products.FirstOrDefaultAsync(p => p.Id == vo.Id);
 
-            _context.Products.Update(product);
+            if (product == null) return null;
 
-            await _context.SaveChangesAsync();
+            Product productModified = _mapper.Map<Product>(vo);
 
-            return _mapper.Map<ProductVO>(product);
+            _context.Entry(product).CurrentValues.SetValues(productModified);
+
+            var result = await _context.SaveChangesAsync();
+
+            if (result > 0) return _mapper.Map<ProductVO>(productModified);
+
+            return null;
         }
 
         public async Task<bool> Delete(int id)

@@ -33,6 +33,30 @@ namespace Shopping.Back.API.Utility
         }
 
         /// <summary>
+        /// Returns Bad Request (Status Code: 400)
+        /// </summary>
+        public static IActionResult SetBadRequest(this ControllerBase controllerBase, string message = null)
+        {
+            var result = new Result();
+
+            result.SetError(message ?? MessageErrorDefault);
+
+            return controllerBase.StatusCode(StatusCodes.Status400BadRequest, result);
+        }
+
+        /// <summary>
+        /// Returns Not Found (Status Code: 404)
+        /// </summary>
+        public static IActionResult SetNotFound(this ControllerBase controllerBase, string message = null)
+        {
+            var result = new Result();
+
+            result.SetError(message ?? MessageErrorDefault);
+
+            return controllerBase.StatusCode(StatusCodes.Status404NotFound, result);
+        }
+
+        /// <summary>
         /// Returns Internal Server Error (Status Code: 500)
         /// </summary>
         public static IActionResult SetInternalServerError(this ControllerBase controllerBase, string message = null)
